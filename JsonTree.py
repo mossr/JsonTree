@@ -1,4 +1,4 @@
-import sublime, sublime_plugin, json
+import sublime, sublime_plugin, json, re
 from collections import OrderedDict
 
 __version__ = '0.1.2'
@@ -10,6 +10,9 @@ class JsonTreeCommand(sublime_plugin.TextCommand):
         content = self.view.substr(sublime.Region(0, self.view.size()))
         try:
             #json_data = json.loads(content)
+            # Remove C-style comments and comment blocks before parsing JSON
+            content=re.sub("//.*?\n","",content)
+            content=re.sub("/\\*.*?\\*/","",content)
             json_data = json.JSONDecoder(object_pairs_hook=OrderedDict).decode(content)
             self.fill_keys(json_data)
             sublime.active_window().show_quick_panel(self.keys, self.goto)
